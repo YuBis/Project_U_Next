@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - MAP
+  - MAP_ROOT
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - Skybox
+  - Water
+  - UI
+  - Ground
+  - Player
+  - Monster
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Skybox
+    uniqueID: 4248180223
+    locked: 0
+  - name: Background
+    uniqueID: 2990576893
+    locked: 0
+  - name: MiddleObj
+    uniqueID: 4275728665
+    locked: 0
+  - name: Middle
+    uniqueID: 3398793253
+    locked: 0
+  - name: MiddleFx
+    uniqueID: 2863598355
+    locked: 0
+  - name: Foreground
+    uniqueID: 3854403171
+    locked: 0
+  - name: Screen
+    uniqueID: 806966621
+    locked: 0

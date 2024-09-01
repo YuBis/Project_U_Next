@@ -1,0 +1,12 @@
+{
+    "STRING_TABLE": {
+        "MONSTER_1": {
+            "STRING_KR": "달팽이",
+            "STRING_EN": "Snail"
+        },
+        "MONSTER_2": {
+            "STRING_KR": "파란 달팽이",
+            "STRING_EN": "Blue Snail"
+        }
+    }
+}

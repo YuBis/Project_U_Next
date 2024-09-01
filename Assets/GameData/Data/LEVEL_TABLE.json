@@ -1,0 +1,44 @@
+{
+    "LEVEL_TABLE": [
+        {
+            "LEVEL": 1,
+            "EXP": 10
+        },
+        {
+            "LEVEL": 2,
+            "EXP": 25
+        },
+        {
+            "LEVEL": 3,
+            "EXP": 40
+        },
+        {
+            "LEVEL": 4,
+            "EXP": 80
+        },
+        {
+            "LEVEL": 5,
+            "EXP": 120
+        },
+        {
+            "LEVEL": 6,
+            "EXP": 180
+        },
+        {
+            "LEVEL": 7,
+            "EXP": 240
+        },
+        {
+            "LEVEL": 8,
+            "EXP": 310
+        },
+        {
+            "LEVEL": 9,
+            "EXP": 390
+        },
+        {
+            "LEVEL": 10,
+            "EXP": 500
+        }
+    ]
+  }

@@ -1,0 +1,28 @@
+{
+    "CHARACTER_TABLE": {
+        "PLAYER": {
+            "PREFAB": "Pf_PlayerCharacter",
+            "STAT_SHEET": "PLAYER",
+            "BODY_CHECK": 0,
+            "SKILL_LIST": ["ATTACK_NORMAL", "MAGICIAN_Magicclaw"],
+            "AI_TYPE": "PLAYER",
+            "NAME": ""
+        },
+        "MONSTER_1": {
+            "PREFAB": "Pf_Monster1",
+            "STAT_SHEET": "MONSTER_1",
+            "BODY_CHECK": 1,
+            "SKILL_LIST": ["MON_BODY_CHECK_NORMAL"],
+            "AI_TYPE": "NON_AGGRESSIVE",
+            "NAME": "MONSTER_1"
+        },
+        "MONSTER_2": {
+            "PREFAB": "Pf_Monster2",
+            "STAT_SHEET": "MONSTER_2",
+            "BODY_CHECK": 1,
+            "SKILL_LIST": ["MON_BODY_CHECK_NORMAL"],
+            "AI_TYPE": "AGGRESSIVE",
+            "NAME": "MONSTER_2"
+        }
+}
+}

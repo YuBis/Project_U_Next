@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Character
+  m_EditorClassIdentifier: 
+  m_GroupName: Character
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 5a7fb1455ef38b846b4c15cf0ebc20fc
+  m_SerializeEntries:
+  - m_GUID: 992663e55f9e64f409c142ae974fd869
+    m_Address: Pf_PlayerCharacter
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - character
+  - m_GUID: 8089cd8a0ecd8e94a9a44d2bed67bee8
+    m_Address: Pf_Monster2
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - character
+  - m_GUID: 0ce028523e3e8fb46bda7b85ee560620
+    m_Address: Pf_Monster1
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - character
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: f0edeff3ee2fe7f4c9475e4e8c027c16, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 732fe1de0b7865f4c97d861dfd788e7e, type: 2}
+    - {fileID: 11400000, guid: 59d344f6d53f7734189c24809f6b8662, type: 2}

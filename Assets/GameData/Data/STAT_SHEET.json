@@ -1,0 +1,132 @@
+{
+    "ATTACK_NORMAL": [
+        {
+            "STAT_NAME": "TARGET_COUNT",
+            "VALUE": 2,
+            "VALUE_PER_LV": 0
+        },
+        {
+            "STAT_NAME": "HIT_COUNT",
+            "VALUE": 2,
+            "VALUE_PER_LV": 0
+        },
+        {
+            "STAT_NAME": "DAMAGE_PER",
+            "VALUE": 100,
+            "VALUE_PER_LV": 0
+        }
+    ],
+    "MON_BODY_CHECK_NORMAL": [
+        {
+            "STAT_NAME": "TARGET_COUNT",
+            "VALUE": 1,
+            "VALUE_PER_LV": 0
+        },
+        {
+            "STAT_NAME": "HIT_COUNT",
+            "VALUE": 1,
+            "VALUE_PER_LV": 0
+        },
+        {
+            "STAT_NAME": "DAMAGE_PER",
+            "VALUE": 100,
+            "VALUE_PER_LV": 0
+        },
+        {
+            "STAT_NAME": "KNOCK_BACK",
+            "VALUE": 400,
+            "VALUE_PER_LV": 0
+        }
+    ],
+    "PLAYER": [
+        {
+            "STAT_NAME": "HP",
+            "VALUE": 100,
+            "VALUE_PER_LV": 10
+        },
+        {
+            "STAT_NAME": "MP",
+            "VALUE": 100,
+            "VALUE_PER_LV": 5
+        },
+        {
+            "STAT_NAME": "DAMAGE",
+            "VALUE": 10,
+            "VALUE_PER_LV": 1
+        },
+        {
+            "STAT_NAME": "MOVE_SPEED",
+            "VALUE": 2000,
+            "VALUE_PER_LV": 0
+        },
+        {
+            "STAT_NAME": "JUMP_RANGE",
+            "VALUE": 400,
+            "VALUE_PER_LV": 0
+        }
+    ],
+    "MONSTER_1": [
+        {
+            "STAT_NAME": "HP",
+            "VALUE": 100,
+            "VALUE_PER_LV": 10
+        },
+        {
+            "STAT_NAME": "MP",
+            "VALUE": 100,
+            "VALUE_PER_LV": 5
+        },
+        {
+            "STAT_NAME": "DAMAGE",
+            "VALUE": 10,
+            "VALUE_PER_LV": 1
+        },
+        {
+            "STAT_NAME": "MOVE_SPEED",
+            "VALUE": 100,
+            "VALUE_PER_LV": 0
+        },
+        {
+            "STAT_NAME": "EXP",
+            "VALUE": 10,
+            "VALUE_PER_LV": 0
+        },
+        {
+            "STAT_NAME": "SIGHT",
+            "VALUE": 20,
+            "VALUE_PER_LV": 0
+        }
+    ],
+    "MONSTER_2": [
+        {
+            "STAT_NAME": "HP",
+            "VALUE": 120,
+            "VALUE_PER_LV": 10
+        },
+        {
+            "STAT_NAME": "MP",
+            "VALUE": 100,
+            "VALUE_PER_LV": 5
+        },
+        {
+            "STAT_NAME": "DAMAGE",
+            "VALUE": 15,
+            "VALUE_PER_LV": 1
+        },
+        {
+            "STAT_NAME": "MOVE_SPEED",
+            "VALUE": 100,
+            "VALUE_PER_LV": 0
+        },
+        {
+            "STAT_NAME": "EXP",
+            "VALUE": 20,
+            "VALUE_PER_LV": 0
+        },
+        {
+            "STAT_NAME": "SIGHT",
+            "VALUE": 10,
+            "VALUE_PER_LV": 0
+        }
+    ]   
+}
