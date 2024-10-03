@@ -4,7 +4,7 @@
 
 코드 구조 작성에 중점을 두어 만들어진 간단한 샘플 프로젝트입니다.
 
-2D 횡스크롤 RPG의 간단한 기능이 구현되어 있으며 간단한 [오브젝트 풀 매니저](https://github.com/YuBis/Project_U_Next/blob/main/Assets/Script/Manager/ObjectPoolManager.cs), [테이블 매니저](https://github.com/YuBis/Project_U_Next/blob/main/Assets/Script/Core/BaseManager.cs) 등이 구현되어 있습니다.
+2D 횡스크롤 RPG의 간단한 기능이 구현되어 있으며 간단한 [오브젝트 풀 매니저](https://github.com/YuBis/Project_U_Next/blob/main/Assets/Script/Manager/ObjectPoolManager.cs), [테이블 매니저](https://github.com/YuBis/Project_U_Next/blob/main/Assets/Script/Core/TableManager.cs) 등이 구현되어 있습니다.
 
 JSON으로 구성된 테이블을 사용하고 있으며, 각 캐릭터는 [팩토리 패턴](https://github.com/YuBis/Project_U_Next/blob/main/Assets/Script/Manager/AI/AIFactory.cs)으로 인젝션하는 [AI](https://github.com/YuBis/Project_U_Next/blob/main/Assets/Script/Manager/AI/BaseAI.cs)를 붙여 작동하도록 구현되어 있습니다.
 
