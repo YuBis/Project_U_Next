@@ -44,11 +44,49 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
     public void Update()
     {
         m_AI?.Update();
+        _CheckGroundStatus();
+    }
+
+    void _CheckGroundStatus()
+    {
+        float groundCheckDistance = 0.1f;
+        LayerMask groundLayer = LayerMask.GetMask("Ground");
+
+        RaycastHit2D hit = Physics2D.Raycast(View.TRANSFORM.position, Vector2.down, groundCheckDistance, groundLayer);
+        bool isGrounded = hit.collider != null;
+
+        if (isGrounded && View.RIGIDBODY.velocity.y <= 0 && Model.IsJumping)
+            OnLand();
+    }
+
+    bool _CheckWallCollision()
+    {
+        Collider2D collider = View.COLLIDER;
+        if (collider == null)
+            return false;
+
+        float colliderHalfWidth = collider.bounds.extents.x;
+        float extraDistance = 0.05f;
+
+        LayerMask groundLayer = LayerMask.GetMask("Grounds");
+
+        Vector2 direction = GetRotation().y > 0 ? Vector2.right : Vector2.left;
+
+        Vector2 rayOrigin = (Vector2)View.TRANSFORM.position + direction * colliderHalfWidth;
+
+        RaycastHit2D hit = Physics2D.Raycast(rayOrigin, direction, extraDistance, groundLayer);
+
+        Debug.DrawRay(rayOrigin, direction * extraDistance, Color.red);
+
+        return hit.collider != null;
     }
 
     public void Move(float direction)
     {
         var force = direction * (float)Model.MoveSpeed * Time.deltaTime;
+        if (_CheckWallCollision())
+            force = 0;
+
         View.ApplyMovement(force);
     }
 
