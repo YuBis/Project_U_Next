@@ -103,7 +103,7 @@ public class GameCharacterView : BaseObject
         }
 
         Vector3 targetVelocity = new Vector2(force, RIGIDBODY.velocity.y);
-        RIGIDBODY.velocity = Vector3.SmoothDamp(RIGIDBODY.velocity, targetVelocity, ref Velocity, 0.05f);
+        RIGIDBODY.velocity = targetVelocity;//Vector3.SmoothDamp(RIGIDBODY.velocity, targetVelocity, ref Velocity, 0.05f);
         //SpriteRenderer.flipX = !(force > 0);
     }
 
