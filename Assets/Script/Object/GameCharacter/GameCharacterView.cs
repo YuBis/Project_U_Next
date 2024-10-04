@@ -35,9 +35,9 @@ public class GameCharacterView : BaseObject
     {
         if (SkeletonAnimation != null)
         {
-            SkeletonAnimation.AnimationState.Start += OnAnimationStart;
-            SkeletonAnimation.AnimationState.Event += OnAnimationEvent;
-            SkeletonAnimation.AnimationState.Complete += OnAnimationComplete;
+            SkeletonAnimation.AnimationState.Start -= OnAnimationStart;
+            SkeletonAnimation.AnimationState.Event -= OnAnimationEvent;
+            SkeletonAnimation.AnimationState.Complete -= OnAnimationComplete;
         }
     }
 
