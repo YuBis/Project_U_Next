@@ -19,10 +19,8 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
         View = view;
         Model = model;
 
-        m_AI = AIFactory.Instance.InjectAI(this, Model.CharacterData?.AI_TYPE ?? AIType.NONE);
-        m_AI.AddNextAI(AIStateType.SPAWN);
-        m_AI.OnStateChangeRequest += OnStateChanged;
-
+        m_AI = AIFactory.Instance.InjectAI(this, Model.CharacterData?.AI_TYPE ?? AIType.NONE, OnStateChanged);
+        
         _SubscribeStatUpdate();
     }
 
