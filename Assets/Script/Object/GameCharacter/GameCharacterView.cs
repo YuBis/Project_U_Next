@@ -182,10 +182,10 @@ public class GameCharacterView : BaseObject
 
         if (collisionObject.CompareTag(StaticString.MAP))
         {
-            if (IsGroundContact(collision))
-            {
-                Presenter.HandleGrounded();
-            }
+            //if (IsGroundContact(collision))
+            //{
+                //Presenter.HandleGrounded();
+            //}
         }
         else
         {
