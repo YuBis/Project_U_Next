@@ -110,11 +110,11 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
 
     public void OnDeath()
     {
-        //View.SetAnimationEndDelegate(delegate
-        //{
+        View.SetAnimationEndDelegate(delegate
+        {
             CharacterManager.Instance.RemoveCharacter(this);
             View.SetHPBoard(false);
-        //});
+        });
     }
 
     public void Attack(GameCharacterPresenter target)
@@ -176,7 +176,7 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
 
     float checkInterval = 0.1f;
     float lastCheckTime = 0;
-    int groundLayerMask = LayerMask.NameToLayer(StaticString.GROUND_LAYER);
+    int groundLayerMask = LayerMask.GetMask(StaticString.GROUND_LAYER);
     bool isFrontEmptyBefore = false;
 
     public bool IsFrontGroundEmpty(Vector2 targetPosition)
@@ -188,7 +188,8 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
 
         //View.SetVelocity(new Vector2(targetPosition.x, View.RIGIDBODY.velocity.y));
 
-        Vector2 nextBlock = new Vector2(View.RIGIDBODY.position.x + targetPosition.x * 0.5f, View.RIGIDBODY.position.y);
+        var targetDir = targetPosition.x > View.RIGIDBODY.position.x ? Vector2.right : Vector2.left;
+        Vector2 nextBlock = new Vector2(View.RIGIDBODY.position.x + targetDir.x * 0.5f, View.RIGIDBODY.position.y + 0.5f);
         Debug.DrawRay(nextBlock, Vector3.down, Color.green);
 
         RaycastHit2D raycast = Physics2D.Raycast(nextBlock, Vector2.down, 1, groundLayerMask);
