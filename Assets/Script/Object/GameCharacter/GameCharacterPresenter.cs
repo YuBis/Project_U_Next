@@ -110,11 +110,7 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
 
     public void OnDeath()
     {
-        View.SetAnimationEndDelegate(delegate
-        {
-            CharacterManager.Instance.RemoveCharacter(this);
-            View.SetHPBoard(false);
-        });
+        Model.SetState(CharacterState.DIE);
     }
 
     public void Attack(GameCharacterPresenter target)
@@ -259,6 +255,11 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
     {
         if (Model.AIState == AIStateType.ATTACK)
             Model.SetAttackStatus(false);
+        else if (Model.AIState == AIStateType.DIE)
+        {
+            CharacterManager.Instance.RemoveCharacter(this);
+            View.SetHPBoard(false);
+        }
     }
 
     public void HandleAnimationEvent(TrackEntry trackEntry, Spine.Event e)
