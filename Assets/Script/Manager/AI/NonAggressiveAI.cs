@@ -38,7 +38,7 @@ public class NonAggressiveAI : BaseAI
             m_aiChangeTicks = DateTime.Now.Ticks + TimeSpan.FromSeconds(Universe.GetDoubleRandom(1, 5)).Ticks;
         }
 
-        if (DateTime.Now.Ticks > m_aiChangeTicks || Presenter.IsFrontGroundEmpty(m_targetPos))
+        if (m_target == null || m_target.GetState() == CharacterState.DIE || DateTime.Now.Ticks > m_aiChangeTicks || Presenter.IsFrontGroundEmpty(m_targetPos))
         {
             AddNextAI(AIStateType.IDLE);
         }
