@@ -72,7 +72,7 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
         float extraDistance = 0.1f;
         float checkDistance = colliderHalfWidth + extraDistance;
 
-        LayerMask groundLayer = LayerMask.GetMask("Grounds");
+        LayerMask groundLayer = LayerMask.GetMask("Ground");
         RaycastHit2D hit = Physics2D.Raycast(View.TRANSFORM.position, direction > 0 ? Vector2.right : Vector2.left, checkDistance, groundLayer);
 
         return hit.collider != null;
