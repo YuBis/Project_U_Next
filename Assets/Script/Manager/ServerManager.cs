@@ -1,43 +1,53 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using UnityEngine;
 using Cysharp.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using UnityEngine;
+
+public enum PacketType
+{
+    MOVE,
+}
 
 public class ServerManager : BaseManager<ServerManager>
 {
-    private TcpClient socket;
-    private NetworkStream stream;
-    private StreamWriter writer;
-    private StreamReader reader;
-    private CancellationTokenSource cancellationTokenSource;
+    public delegate void MessageHandler(PacketType packetType, JObject packetBody);
 
-    private string serverIP = "127.0.0.1";
-    private int serverPort = 12345;
+    Dictionary<PacketType, MessageHandler> m_dicMessageHandler = new();
 
-    protected override void _InitManager()
+    TcpClient m_socket;
+    NetworkStream m_stream;
+    StreamReader m_reader;
+    StreamWriter m_writer;
+
+    private readonly string SERVER_IP = "127.0.0.1";
+    private readonly int SERVER_PORT = 12345;
+
+    protected override async void _InitManager()
     {
-        //ConnectToServer().Forget(); // for test
+        await ConnectToServer();
     }
 
-    async UniTaskVoid ConnectToServer()
+    public async UniTask ConnectToServer()
     {
         try
         {
-            socket = new TcpClient();
-            await socket.ConnectAsync(serverIP, serverPort);  // 비동기 연결 시도
-            if (socket.Connected)
+            m_socket = new TcpClient();
+            await m_socket.ConnectAsync(SERVER_IP, SERVER_PORT);
+            if (m_socket.Connected)
             {
-                stream = socket.GetStream();
-                reader = new StreamReader(stream, Encoding.UTF8);
-                writer = new StreamWriter(stream, Encoding.UTF8) { AutoFlush = true };
+                m_stream = m_socket.GetStream();
+                m_reader = new StreamReader(m_stream, Encoding.UTF8);
+                m_writer = new StreamWriter(m_stream, Encoding.UTF8) { AutoFlush = true };
 
                 Debug.Log("Connected to server");
 
-                StartReceiving();
+                StartReceiving().Forget();
+
+                await SendMessageToServer("New Connection!");
             }
         }
         catch (Exception e)
@@ -46,16 +56,17 @@ public class ServerManager : BaseManager<ServerManager>
         }
     }
 
-    async void StartReceiving()
+    private async UniTaskVoid StartReceiving()
     {
         try
         {
             while (true)
             {
-                string message = await reader.ReadLineAsync().AsUniTask();
+                string message = await m_reader.ReadLineAsync();
                 if (message != null)
                 {
                     Debug.Log("Received message: " + message);
+                    HandleMessage(message);
                 }
                 else
                 {
@@ -70,11 +81,38 @@ public class ServerManager : BaseManager<ServerManager>
         }
     }
 
-    async UniTask SendMessageToServer(string message)
+    private void HandleMessage(string message)
     {
-        if (socket != null && socket.Connected)
+        try
         {
-            await writer.WriteLineAsync(message);
+            var json = JObject.Parse(message);
+            string type = json["type"].ToString();
+
+            if (type == "MOVE")
+            {
+                string characterId = json["characterId"].ToString();
+                float x = json["position"]["x"].ToObject<float>();
+                float y = json["position"]["y"].ToObject<float>();
+                float z = json["position"]["z"].ToObject<float>();
+
+                Debug.Log($"Character {characterId} moved to ({x}, {y}, {z})");
+            }
+            else
+            {
+                Debug.Log("Unknown message type: " + type);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Failed to parse message: " + e.Message);
+        }
+    }
+
+    public async UniTask SendMessageToServer(string message)
+    {
+        if (m_socket != null && m_socket.Connected)
+        {
+            await m_writer.WriteLineAsync(message);
             Debug.Log("Message sent: " + message);
         }
         else
@@ -83,12 +121,33 @@ public class ServerManager : BaseManager<ServerManager>
         }
     }
 
-    void OnDestroy()
+    public async UniTask SendCharacterMove(string characterId, float x, float y, float z)
     {
-        // Clean up network resources
-        writer?.Close();
-        reader?.Close();
-        stream?.Close();
-        socket?.Close();
+        var moveMessage = new JObject
+        {
+            ["type"] = "MOVE",
+            ["characterId"] = characterId,
+            ["position"] = new JObject
+            {
+                ["x"] = x,
+                ["y"] = y,
+                ["z"] = z
+            }
+        };
+
+        await SendMessageToServer(moveMessage.ToString(Newtonsoft.Json.Formatting.None));
+    }
+
+    public void Disconnect()
+    {
+        m_writer?.Close();
+        m_reader?.Close();
+        m_stream?.Close();
+        m_socket?.Close();
+    }
+
+    ~ServerManager()
+    {
+        Disconnect();
     }
 }
