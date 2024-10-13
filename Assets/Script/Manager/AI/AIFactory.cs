@@ -1,4 +1,5 @@
-﻿using System.Collections;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -42,13 +43,16 @@ public class AIFactory : BaseManager<AIFactory>
     BaseAI _CreateAggressiveAI(GameCharacterPresenter presenter) => new AggressiveAI(presenter);
     BaseAI _CreateNonAggressiveAI(GameCharacterPresenter presenter) => new NonAggressiveAI(presenter);
 
-    public BaseAI InjectAI(GameCharacterPresenter presenter, AIType aiType)
+    public BaseAI InjectAI(GameCharacterPresenter presenter, AIType aiType, Action<CharacterState> stateChangeFunc = null, AIStateType baseState = AIStateType.SPAWN)
     {
         if (aiType == AIType.NONE)
             return null;
 
         var ai = m_dicAIFactoryDelegate[aiType].Invoke(presenter);
+        if(stateChangeFunc != null)
+            ai.OnStateChangeRequest += stateChangeFunc;
 
+        ai.AddNextAI(baseState);
         return ai;
     }
 }

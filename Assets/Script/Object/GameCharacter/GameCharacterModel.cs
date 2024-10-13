@@ -41,8 +41,7 @@ public class GameCharacterModel : IDynamicStatManageable, ISkillManageable
 
         _LoadInitialStats();
 
-        IsJumping = false;
-        IsGrounded = true;
+        SetJumping(false);
     }
 
     void _LoadInitialStats()

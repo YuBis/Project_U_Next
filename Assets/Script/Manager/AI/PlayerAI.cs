@@ -65,7 +65,7 @@ public class PlayerAI : BaseAI
     {
         await base._Attack();
 
-        Presenter.StopMovement();
+        //Presenter.StopMovement();
 
         if (!Presenter.IsAttacking())
             AddNextAI(AIStateType.IDLE);

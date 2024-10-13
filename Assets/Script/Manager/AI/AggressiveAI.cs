@@ -62,7 +62,7 @@ public class AggressiveAI : BaseAI
     {
         await base._Targeting();
 
-        if (Presenter.IsFrontGroundEmpty(m_target.GetPosition()))
+        if (m_target == null || m_target.GetState() == CharacterState.DIE || Presenter.IsFrontGroundEmpty(m_target.GetPosition()))
         {
             AddNextAI(AIStateType.IDLE);
             return;

@@ -19,10 +19,8 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
         View = view;
         Model = model;
 
-        m_AI = AIFactory.Instance.InjectAI(this, Model.CharacterData?.AI_TYPE ?? AIType.NONE);
-        m_AI.AddNextAI(AIStateType.SPAWN);
-        m_AI.OnStateChangeRequest += OnStateChanged;
-
+        m_AI = AIFactory.Instance.InjectAI(this, Model.CharacterData?.AI_TYPE ?? AIType.NONE, OnStateChanged);
+        
         _SubscribeStatUpdate();
     }
 
@@ -49,34 +47,31 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
 
     void _CheckGroundStatus()
     {
+        if(!Model.IsJumping)
+            return;
+
+        float verticalVelocity = View.RIGIDBODY.totalForce.y;
+        if (verticalVelocity > 0)
+            return;
+            
         float groundCheckDistance = 0.1f;
         LayerMask groundLayer = LayerMask.GetMask("Ground");
 
         RaycastHit2D hit = Physics2D.Raycast(View.TRANSFORM.position, Vector2.down, groundCheckDistance, groundLayer);
         bool isGrounded = hit.collider != null;
 
-        if (isGrounded && View.RIGIDBODY.velocity.y <= 0 && Model.IsJumping)
+        if (isGrounded)
             OnLand();
     }
 
-    bool _CheckWallCollision()
+    bool _CheckWallCollision(float direction)
     {
-        Collider2D collider = View.COLLIDER;
-        if (collider == null)
-            return false;
+        float colliderHalfWidth = View.COLLIDER.bounds.extents.x;
+        float extraDistance = 0.1f;
+        float checkDistance = colliderHalfWidth + extraDistance;
 
-        float colliderHalfWidth = collider.bounds.extents.x;
-        float extraDistance = 0.05f;
-
-        LayerMask groundLayer = LayerMask.GetMask("Grounds");
-
-        Vector2 direction = GetRotation().y > 0 ? Vector2.right : Vector2.left;
-
-        Vector2 rayOrigin = (Vector2)View.TRANSFORM.position + direction * colliderHalfWidth;
-
-        RaycastHit2D hit = Physics2D.Raycast(rayOrigin, direction, extraDistance, groundLayer);
-
-        Debug.DrawRay(rayOrigin, direction * extraDistance, Color.red);
+        LayerMask groundLayer = LayerMask.GetMask("Ground");
+        RaycastHit2D hit = Physics2D.Raycast(View.TRANSFORM.position, direction > 0 ? Vector2.right : Vector2.left, checkDistance, groundLayer);
 
         return hit.collider != null;
     }
@@ -84,7 +79,7 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
     public void Move(float direction)
     {
         var force = direction * (float)Model.MoveSpeed * Time.deltaTime;
-        if (_CheckWallCollision())
+        if (_CheckWallCollision(direction))
             force = 0;
 
         View.ApplyMovement(force);
@@ -115,11 +110,7 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
 
     public void OnDeath()
     {
-        //View.SetAnimationEndDelegate(delegate
-        //{
-            CharacterManager.Instance.RemoveCharacter(this);
-            View.SetHPBoard(false);
-        //});
+        Model.SetState(CharacterState.DIE);
     }
 
     public void Attack(GameCharacterPresenter target)
@@ -181,7 +172,7 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
 
     float checkInterval = 0.1f;
     float lastCheckTime = 0;
-    int groundLayerMask = LayerMask.NameToLayer(StaticString.GROUND_LAYER);
+    int groundLayerMask = LayerMask.GetMask(StaticString.GROUND_LAYER);
     bool isFrontEmptyBefore = false;
 
     public bool IsFrontGroundEmpty(Vector2 targetPosition)
@@ -193,7 +184,8 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
 
         //View.SetVelocity(new Vector2(targetPosition.x, View.RIGIDBODY.velocity.y));
 
-        Vector2 nextBlock = new Vector2(View.RIGIDBODY.position.x + targetPosition.x * 0.5f, View.RIGIDBODY.position.y);
+        var targetDir = targetPosition.x > View.RIGIDBODY.position.x ? Vector2.right : Vector2.left;
+        Vector2 nextBlock = new Vector2(View.RIGIDBODY.position.x + targetDir.x * 0.5f, View.RIGIDBODY.position.y + 0.5f);
         Debug.DrawRay(nextBlock, Vector3.down, Color.green);
 
         RaycastHit2D raycast = Physics2D.Raycast(nextBlock, Vector2.down, 1, groundLayerMask);
@@ -263,6 +255,11 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
     {
         if (Model.AIState == AIStateType.ATTACK)
             Model.SetAttackStatus(false);
+        else if (Model.AIState == AIStateType.DIE)
+        {
+            CharacterManager.Instance.RemoveCharacter(this);
+            View.SetHPBoard(false);
+        }
     }
 
     public void HandleAnimationEvent(TrackEntry trackEntry, Spine.Event e)

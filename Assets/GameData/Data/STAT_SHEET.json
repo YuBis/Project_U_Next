@@ -83,7 +83,7 @@
         },
         {
             "STAT_NAME": "MOVE_SPEED",
-            "VALUE": 100,
+            "VALUE": 1000,
             "VALUE_PER_LV": 0
         },
         {
@@ -115,7 +115,7 @@
         },
         {
             "STAT_NAME": "MOVE_SPEED",
-            "VALUE": 100,
+            "VALUE": 1000,
             "VALUE_PER_LV": 0
         },
         {
