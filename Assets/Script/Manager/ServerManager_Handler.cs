@@ -6,7 +6,7 @@ using Cysharp.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-public class ServerManager_Handler
+public partial class ServerManager
 {
 
 }

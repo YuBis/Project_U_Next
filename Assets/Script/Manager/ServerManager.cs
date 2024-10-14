@@ -9,13 +9,29 @@ using UnityEngine;
 
 public enum PacketType
 {
+    ECHO,
+
     MOVE,
 }
 
-public class ServerManager : BaseManager<ServerManager>
+public class PacketDataType
 {
-    public delegate void MessageHandler(PacketType packetType, JObject packetBody);
+    public const string TYPE = "TYPE";
+    public const string UID = "UID";
+    public const string CID = "CID";
 
+    public const string POSITION = "POSITION";
+    public const string X = "X";
+    public const string Y = "Y";
+    public const string Z = "Z";
+
+    public const string MOVESPEED = "MOVESPEED";
+
+}
+
+public partial class ServerManager : BaseManager<ServerManager>
+{
+    public delegate void MessageHandler(JObject packetBody);
     Dictionary<PacketType, MessageHandler> m_dicMessageHandler = new();
 
     TcpClient m_socket;
@@ -26,8 +42,11 @@ public class ServerManager : BaseManager<ServerManager>
     private readonly string SERVER_IP = "127.0.0.1";
     private readonly int SERVER_PORT = 12345;
 
+    private string TEMP_UID;
+
     protected override async void _InitManager()
     {
+        TEMP_UID = Guid.NewGuid().ToString();
         await ConnectToServer();
     }
 
@@ -66,7 +85,7 @@ public class ServerManager : BaseManager<ServerManager>
                 if (message != null)
                 {
                     Debug.Log("Received message: " + message);
-                    HandleMessage(message);
+                    _HandleMessage(message);
                 }
                 else
                 {
@@ -77,34 +96,28 @@ public class ServerManager : BaseManager<ServerManager>
         }
         catch (Exception e)
         {
-            Debug.LogError("Failed to receive data from the server: " + e.Message);
+            Debug.LogError($"Failed to receive data from the server: {e.Message}");
         }
     }
 
-    private void HandleMessage(string message)
+    void _HandleMessage(string message)
     {
         try
         {
             var json = JObject.Parse(message);
-            string type = json["type"].ToString();
-
-            if (type == "MOVE")
+            var type = (PacketType)json[PacketDataType.TYPE].Value<int>();
+            if (m_dicMessageHandler.TryGetValue(type, out var handler))
             {
-                string characterId = json["characterId"].ToString();
-                float x = json["position"]["x"].ToObject<float>();
-                float y = json["position"]["y"].ToObject<float>();
-                float z = json["position"]["z"].ToObject<float>();
-
-                Debug.Log($"Character {characterId} moved to ({x}, {y}, {z})");
+                handler?.Invoke(json);
             }
             else
             {
-                Debug.Log("Unknown message type: " + type);
+                Debug.Log($"Unknown message type: {type}");
             }
         }
         catch (Exception e)
         {
-            Debug.LogError("Failed to parse message: " + e.Message);
+            Debug.LogError($"Failed to parse message: {e.Message}");
         }
     }
 
@@ -113,7 +126,7 @@ public class ServerManager : BaseManager<ServerManager>
         if (m_socket != null && m_socket.Connected)
         {
             await m_writer.WriteLineAsync(message);
-            Debug.Log("Message sent: " + message);
+            Debug.Log($"Message sent: {message}");
         }
         else
         {
@@ -121,21 +134,20 @@ public class ServerManager : BaseManager<ServerManager>
         }
     }
 
-    public async UniTask SendCharacterMove(string characterId, float x, float y, float z)
+    public async UniTask SendCharacterMove(string characterId, Vector2 pos, float moveSpeed)
     {
-        var moveMessage = new JObject
-        {
-            ["type"] = "MOVE",
-            ["characterId"] = characterId,
-            ["position"] = new JObject
-            {
-                ["x"] = x,
-                ["y"] = y,
-                ["z"] = z
-            }
-        };
+        var msg = _GetDefaultPacketObject(PacketType.MOVE);
 
-        await SendMessageToServer(moveMessage.ToString(Newtonsoft.Json.Formatting.None));
+        msg[PacketDataType.CID] = characterId;
+        msg[PacketDataType.POSITION] = new JObject
+        {
+            [PacketDataType.X] = pos.x,
+            [PacketDataType.Y] = pos.y,
+            [PacketDataType.Z] = 0
+        };
+        msg[PacketDataType.MOVESPEED] = moveSpeed;
+
+        await SendMessageToServer(msg.ToString());
     }
 
     public void Disconnect()
@@ -144,6 +156,25 @@ public class ServerManager : BaseManager<ServerManager>
         m_reader?.Close();
         m_stream?.Close();
         m_socket?.Close();
+    }
+
+    void _InitHandlerDict()
+    {
+        //_AddHandler(PacketType.MOVE, _Move);
+    }
+
+    void _AddHandler(PacketType messageType, MessageHandler handler)
+    {
+        m_dicMessageHandler.TryAdd(messageType, handler);
+    }
+
+    JObject _GetDefaultPacketObject(PacketType packetType)
+    {
+        return new JObject()
+        {
+            [PacketDataType.TYPE] = (int)packetType,
+            [PacketDataType.UID] = TEMP_UID
+        };
     }
 
     ~ServerManager()

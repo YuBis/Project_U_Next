@@ -1,6 +1,8 @@
-﻿using Spine;
+﻿using Cysharp.Threading.Tasks;
+using Spine;
 using Spine.Unity;
 using System.Linq;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -22,7 +24,7 @@ public class GameCharacterView : BaseObject
 
     private void Update()
     {
-        if(TRANSFORM.hasChanged)
+        if (TRANSFORM.hasChanged)
         {
             Presenter.UpdatePosition(TRANSFORM.position);
             TRANSFORM.hasChanged = false;
@@ -92,31 +94,45 @@ public class GameCharacterView : BaseObject
         TRANSFORM.localRotation = Quaternion.Euler(0, yRotation, 0);
     }
 
-    public void ApplyMovement(float force)
+    public async UniTaskVoid ApplyMovement(float direction, Vector2 targetPosition, float speed, CancellationToken cancellationToken)
     {
-        SetRotation(force > 0 ? 0 : 180);
+        SetRotation(direction > 0 ? 0 : 180);
 
-        if (IsTouchingWall())
+        while (Vector2.Distance(TRANSFORM.position, targetPosition) > speed)
         {
-            RIGIDBODY.velocity = new Vector2(0, RIGIDBODY.velocity.y);
-            return;
+            if (cancellationToken.IsCancellationRequested)
+                return; // 이동 취소
+
+            UpdatePosition(Vector2.MoveTowards(TRANSFORM.position, targetPosition, speed));
+            await UniTask.NextFrame(cancellationToken);
         }
 
-        Vector3 targetVelocity = new Vector2(force, RIGIDBODY.velocity.y);
-        RIGIDBODY.velocity = targetVelocity;//Vector3.SmoothDamp(RIGIDBODY.velocity, targetVelocity, ref Velocity, 0.05f);
-        //SpriteRenderer.flipX = !(force > 0);
+        UpdatePosition(targetPosition);
     }
 
-    bool IsTouchingWall()
+    public void ApplyJump(float jumpForce)
     {
-        float direction = TRANSFORM.localRotation.y > 0 ? 1 : -1;
-        RaycastHit2D hit = Physics2D.Raycast(TRANSFORM.position, new Vector2(direction, 0), 0.1f, LayerMask.NameToLayer(StaticString.GROUND_LAYER));
+        RIGIDBODY.AddForce(new Vector2(0, jumpForce));
+    }
+
+    public bool IsTouchingWall(float direction)
+    {
+        float colliderHalfWidth = COLLIDER.bounds.extents.x;
+        float extraDistance = 0.1f;
+        float checkDistance = colliderHalfWidth + extraDistance;
+
+        LayerMask groundLayerMask = 1 << LayerMask.NameToLayer(StaticString.GROUND_LAYER);
+        RaycastHit2D hit = Physics2D.Raycast(TRANSFORM.position, direction > 0 ? Vector2.right : Vector2.left, checkDistance, groundLayerMask);
+
+        Debug.DrawRay(TRANSFORM.position, (direction > 0 ? Vector2.right : Vector2.left) * checkDistance, Color.red, 0.1f);
+
         return hit.collider != null;
     }
 
+
     public void StopMovement()
     {
-        RIGIDBODY.velocity = new Vector2(0, 0);
+        SetVelocity(new Vector2(0, RIGIDBODY.velocity.y));
     }
 
     public void SetVelocity(Vector2 newVelocity)
@@ -184,7 +200,7 @@ public class GameCharacterView : BaseObject
         {
             //if (IsGroundContact(collision))
             //{
-                //Presenter.HandleGrounded();
+            //Presenter.HandleGrounded();
             //}
         }
         else

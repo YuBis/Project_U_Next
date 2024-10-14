@@ -7,6 +7,7 @@ using Spine.Unity;
 using Spine;
 using UnityEditor.U2D.Animation;
 using static UnityEngine.GraphicsBuffer;
+using System.Threading;
 
 public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
 {
@@ -14,13 +15,16 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
     readonly GameCharacterView View;
     readonly BaseAI m_AI;
 
+    bool m_isMoving = false;
+    CancellationTokenSource moveCancellationTokenSource;
+
     public GameCharacterPresenter(GameCharacterModel model, GameCharacterView view)
     {
         View = view;
         Model = model;
 
         m_AI = AIFactory.Instance.InjectAI(this, Model.CharacterData?.AI_TYPE ?? AIType.NONE, OnStateChanged);
-        
+
         _SubscribeStatUpdate();
     }
 
@@ -47,13 +51,13 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
 
     void _CheckGroundStatus()
     {
-        if(!Model.IsJumping)
+        if (!Model.IsJumping)
             return;
 
         float verticalVelocity = View.RIGIDBODY.totalForce.y;
         if (verticalVelocity > 0)
             return;
-            
+
         float groundCheckDistance = 0.1f;
         LayerMask groundLayer = LayerMask.GetMask("Ground");
 
@@ -78,18 +82,41 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
 
     public void Move(float direction)
     {
-        var force = direction * (float)Model.MoveSpeed * Time.deltaTime;
-        if (_CheckWallCollision(direction))
-            force = 0;
+        if (View.IsTouchingWall(direction))
+        {
+            StopMovement();
+            return;
+        }
 
-        View.ApplyMovement(force);
+        if (moveCancellationTokenSource != null)
+        {
+            moveCancellationTokenSource.Cancel();
+        }
+
+        moveCancellationTokenSource = new CancellationTokenSource();
+        Vector2 targetPosition = Model.Position + new Vector2(direction * (float)Model.MoveSpeed * Time.fixedDeltaTime, 0);
+        View.ApplyMovement(direction, targetPosition, (float)Model.MoveSpeed * Time.fixedDeltaTime, moveCancellationTokenSource.Token).Forget();
+
+        ServerManager.Instance.SendCharacterMove(Model.TemplateKey, targetPosition, (float)Model.MoveSpeed).Forget();
+    }
+
+    public void StopMovement()
+    {
+        if (moveCancellationTokenSource != null)
+        {
+            moveCancellationTokenSource.Cancel();
+            moveCancellationTokenSource = null;
+        }
+
+        View.StopMovement();
+        ServerManager.Instance.SendCharacterMove(Model.TemplateKey, Model.Position, 0).Forget();
     }
 
     public void Jump()
     {
         if (Model.IsGrounded && !Model.IsJumping)
         {
-            View.RIGIDBODY.AddForce(new Vector2(0, (float)Model.JumpRange));
+            View.ApplyJump((float)Model.JumpRange);
             Model.SetJumping(true);
         }
     }
@@ -266,11 +293,6 @@ public class GameCharacterPresenter : IMovable, IJumpable, IAttackable
     {
         if (Model.AIState == AIStateType.ATTACK)
             UseSkill(GetSkill(SkillType.ATTACK_NORMAL));
-    }
-
-    public void StopMovement()
-    {
-        View.StopMovement();
     }
 
     public bool IsJumping() => Model.IsJumping;
